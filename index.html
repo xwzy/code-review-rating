@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>CR代码匿名打分</title>
-        <style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CR代码匿名打分</title>
+    <style>
       body {
         font-family: Arial, sans-serif;
         background-color: #f1f1f1;
@@ -51,6 +51,12 @@
         border-radius: 3px;
       }
 
+      .rating-list input[type="text"] {
+        width: 30%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
       .rating-form button,
       .rating-list button {
         background-color: #4caf50;
@@ -195,48 +201,52 @@
         }
       }
     </style>
-    </head>
-    <body>
-        <h1>CR代码匿名打分</h1>
+  </head>
+  <body>
+    <h1>CR代码匿名打分</h1>
 
-        <div class="rating-form">
-            <h2>评审代码</h2>
-            <label for="your_comment">简要评价：</label>
-            <input type="text" id="title" name="title" required /><br />
+    <div class="rating-form">
+      <h2>评审代码</h2>
+      <label for="your_comment">简要评价：</label>
+      <input type="text" id="title" name="title" required /><br />
 
-            <label for="score">分数：</label>
-            <select id="score" name="score">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option></select><br />
+      <label for="score">分数：</label>
+      <select id="score" name="score">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option></select><br />
 
-            <label for="your_name">你的名字：</label>
-            <input type="text" id="username" name="username" /><br />
+      <label for="your_name">你的名字：</label>
+      <input type="text" id="username" name="username" /><br />
 
-            <label for="anonymous">选择匿名：</label>
-            <input type="checkbox" id="anonymous" name="anonymous" /><br />
+      <label for="anonymous">选择匿名：</label>
+      <input type="checkbox" id="anonymous" name="anonymous" /><br />
 
-            <button onclick="submitRating()">提交评分</button>
-        </div>
+      <button onclick="submitRating()">提交评分</button>
+    </div>
 
-        <div class="rating-list">
-            <h2>评分列表</h2>
-            <button onclick="fetchRatings()">刷新评分</button>
-            <div class="average-score">
-                <label>平均分:</label>
-                <span class="score-value">0</span>
-            </div>
-            <table id="ratings"></table>
-        </div>
+    <div class="rating-list">
+      <h2>评分列表</h2>
+      <div class="token-input">
+        <label for="token">输入Token：</label>
+        <input type="text" id="token" name="token" />
+      </div>
+      <button onclick="fetchRatings()">刷新评分</button>
+      <div class="average-score">
+        <label>平均分:</label>
+        <span class="score-value">0</span>
+      </div>
+      <table id="ratings"></table>
+    </div>
 
-        <script>
+    <script>
       function submitRating() {
         var title = document.getElementById("title").value;
         var score = document.getElementById("score").value;
@@ -270,7 +280,15 @@
       }
 
       function fetchRatings() {
-        fetch("/get-ratings")
+        var token = document.getElementById("token").value.trim(); // 获取输入框中的令牌，并去掉前后的空格
+
+        var headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("X-Token", token); // 将令牌添加到请求头部
+
+        fetch("/get-ratings", {
+          headers: headers,
+        })
           .then((response) => response.json())
           .then((data) => {
             var ratingsTable = document.getElementById("ratings");
@@ -314,8 +332,9 @@
           })
           .catch((error) => {
             console.error("Error fetching ratings:", error);
+            alert("获取评分失败，请检查Token是否正确！");
           });
       }
     </script>
-    </body>
+  </body>
 </html>

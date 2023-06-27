@@ -3,6 +3,19 @@ const fs = require('fs');
 const path = require('path');
 
 let ratings = [];
+const generateToken = () => {
+    const length = 8;
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let token = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        token += characters.charAt(randomIndex);
+    }
+    console.log('Token: ', token);
+    return token;
+};
+
+const token = generateToken();
 
 
 const server = http.createServer((req, res) => {
@@ -22,21 +35,30 @@ const server = http.createServer((req, res) => {
         });
     } else if (req.method === 'POST' && req.url === '/save-rating') {
         res.setHeader('Content-Type', 'application/json');
+        const ip = req.connection.remoteAddress;
         let body = '';
         req.on('data', chunk => {
             body += chunk;
         });
         req.on('end', () => {
             const rating = JSON.parse(body);
+            rating.username = rating.username + "-" + ip;
             ratings.push(rating);
             res.statusCode = 200;
             res.end(JSON.stringify({ message: 'Rating saved successfully' }));
         });
     }
     else if (req.method === 'GET' && req.url === '/get-ratings') {
-        res.setHeader('Content-Type', 'application/json');
-        res.statusCode = 200;
-        res.end(JSON.stringify(ratings));
+        const requestToken = req.headers['x-token'];
+
+        if (requestToken === token) {
+            res.setHeader('Content-Type', 'application/json');
+            res.statusCode = 200;
+            res.end(JSON.stringify(ratings));
+        } else {
+            res.statusCode = 403;
+            res.end('Invalid token');
+        }
     } else {
         res.statusCode = 404;
         res.end('404 Not Found');
