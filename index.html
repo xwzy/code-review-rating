@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CR代码匿名打分</title>
+        <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f1f1f1;
+        color: #333;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 38px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+
+      .rating-form,
+      .rating-list {
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 30px;
+      }
+
+      .rating-form label,
+      .rating-list label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .rating-form input[type="text"],
+      .rating-form select,
+      .rating-list ul {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+
+      .rating-form button,
+      .rating-list button {
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 3px;
+        font-size: 16px;
+      }
+
+      .rating-list button {
+        background-color: #2196f3;
+      }
+
+      .rating-list ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .rating-list li {
+        margin-bottom: 5px;
+      }
+
+      .rating-list li:last-child {
+        margin-bottom: 0;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 10px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        h2 {
+          font-size: 20px;
+        }
+
+        .rating-form,
+        .rating-list {
+          margin-bottom: 20px;
+        }
+
+        .rating-form button,
+        .rating-list button {
+          font-size: 14px;
+          padding: 8px 16px;
+        }
+
+        .rating-list ul {
+          font-size: 14px;
+        }
+      }
+
+      .rating-list {
+        margin-bottom: 30px;
+      }
+
+      .rating-list h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+
+      .rating-list button {
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 3px;
+        font-size: 16px;
+      }
+
+      .rating-list table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      .rating-list th,
+      .rating-list td {
+        padding: 10px;
+        text-align: left;
+      }
+
+      .rating-list th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+
+      .rating-list tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      .rating-list tfoot {
+        font-weight: bold;
+      }
+
+      @media (max-width: 600px) {
+        .rating-list h2 {
+          font-size: 20px;
+        }
+
+        .rating-list button {
+          font-size: 14px;
+          padding: 8px 16px;
+        }
+
+        .rating-list th,
+        .rating-list td {
+          padding: 8px;
+        }
+      }
+
+      .average-score {
+        margin-top: 20px;
+        font-size: 18px;
+      }
+
+      .average-score label {
+        font-weight: bold;
+      }
+
+      .average-score .score-value {
+        font-size: 24px;
+        color: #4caf50;
+      }
+
+      @media (max-width: 600px) {
+        .average-score {
+          font-size: 16px;
+        }
+
+        .average-score .score-value {
+          font-size: 20px;
+        }
+      }
+    </style>
+    </head>
+    <body>
+        <h1>CR代码匿名打分</h1>
+
+        <div class="rating-form">
+            <h2>评审代码</h2>
+            <label for="your_comment">简要评价：</label>
+            <input type="text" id="title" name="title" required /><br />
+
+            <label for="score">分数：</label>
+            <select id="score" name="score">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option></select><br />
+
+            <label for="your_name">你的名字：</label>
+            <input type="text" id="username" name="username" /><br />
+
+            <label for="anonymous">选择匿名：</label>
+            <input type="checkbox" id="anonymous" name="anonymous" /><br />
+
+            <button onclick="submitRating()">提交评分</button>
+        </div>
+
+        <div class="rating-list">
+            <h2>评分列表</h2>
+            <button onclick="fetchRatings()">刷新评分</button>
+            <div class="average-score">
+                <label>平均分:</label>
+                <span class="score-value">0</span>
+            </div>
+            <table id="ratings"></table>
+        </div>
+
+        <script>
+      function submitRating() {
+        var title = document.getElementById("title").value;
+        var score = document.getElementById("score").value;
+        var username = document.getElementById("username").value;
+        var anonymous = document.getElementById("anonymous").checked;
+
+        var rating = {
+          title: title,
+          score: score,
+          username: anonymous ? "匿名用户" : username,
+        };
+
+        fetch("/save-rating", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(rating),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            window.alert("评分已提交成功！");
+            document.getElementById("title").value = "";
+            document.getElementById("score").value = "1";
+            document.getElementById("username").value = "";
+            document.getElementById("anonymous").checked = false;
+          })
+          .catch((error) => {
+            console.error("Error submitting rating:", error);
+          });
+      }
+
+      function fetchRatings() {
+        fetch("/get-ratings")
+          .then((response) => response.json())
+          .then((data) => {
+            var ratingsTable = document.getElementById("ratings");
+            ratingsTable.innerHTML = "";
+
+            var tableHead = document.createElement("thead");
+            var headRow = document.createElement("tr");
+            var titleHeader = document.createElement("th");
+            var scoreHeader = document.createElement("th");
+            var usernameHeader = document.createElement("th");
+
+            titleHeader.textContent = "简要评价";
+            scoreHeader.textContent = "分数";
+            usernameHeader.textContent = "用户";
+
+            headRow.appendChild(titleHeader);
+            headRow.appendChild(scoreHeader);
+            headRow.appendChild(usernameHeader);
+            tableHead.appendChild(headRow);
+            ratingsTable.appendChild(tableHead);
+            var tableBody = document.createElement("tbody");
+            data.forEach((rating) => {
+              var row = document.createElement("tr");
+              var titleCell = document.createElement("td");
+              var scoreCell = document.createElement("td");
+              var usernameCell = document.createElement("td");
+              titleCell.textContent = rating.title;
+              scoreCell.textContent = rating.score;
+              usernameCell.textContent = rating.username;
+              row.appendChild(titleCell);
+              row.appendChild(scoreCell);
+              row.appendChild(usernameCell);
+              tableBody.appendChild(row);
+            });
+            ratingsTable.appendChild(tableBody);
+            var scores = data.map((rating) => parseInt(rating.score));
+            var averageScore =
+              scores.reduce((sum, score) => sum + score, 0) / scores.length;
+            var scoreValueElement = document.querySelector(".score-value");
+            scoreValueElement.textContent = averageScore;
+          })
+          .catch((error) => {
+            console.error("Error fetching ratings:", error);
+          });
+      }
+    </script>
+    </body>
+</html>
