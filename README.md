@@ -26,3 +26,7 @@
 ```bash
 bash run.sh
 ```
+
+## 截图
+
+![](screenshot.png)
