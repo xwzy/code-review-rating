@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 let ratings = [];
 const generateToken = () => {
@@ -16,6 +17,23 @@ const generateToken = () => {
 };
 
 const token = generateToken();
+
+
+function getAllLocalIPs() {
+    const interfaces = os.networkInterfaces();
+    const ipList = [];
+
+    for (const interfaceName in interfaces) {
+        const interface = interfaces[interfaceName];
+        for (const iface of interface) {
+            if (iface.family === 'IPv4' && !iface.internal) {
+                ipList.push(iface.address);
+            }
+        }
+    }
+
+    return ipList;
+}
 
 
 const server = http.createServer((req, res) => {
@@ -69,5 +87,10 @@ const hostname = '0.0.0.0';
 const port = 9001;
 
 server.listen(port, hostname, () => {
-    console.log(`Server running at http://localhost:${port}/`);
+    const localIPs = getAllLocalIPs();
+    for (const ip of localIPs) {
+        console.log(`Server running at http://${ip}:${port}/`);
+    }
 });
+
+
